@@ -72,8 +72,8 @@ def tratamento(df):
 
     colunas = ['state', 'city', 'postal_code', 'id_person_recommendation', 'Recebe Comunicados?', 'Interesses', 'Pontos de Atenção',
             'id_stage', 'id_org', 'status.1', 'activities_count', 'Qde Todos Atendimentos', 'Faltas Todos Atendimento', 'Datas Atendimento Médico',
-            'Datas Acolhimento', 'Datas Psicoterapia','Qde Prescrições', 'Datas Prescrição', 'Qde Respostas WHOQOL']
-
+            'Datas Acolhimento', 'Datas Psicoterapia','Qde Prescrições', 'Datas Prescrição', 'Qde Respostas WHOQOL', 'Ligações Inbound', 'Data Última Ligações Inbound', 'Ligações Outbound', 'Data Última Ligações Outbound',
+            'Qde Total de Faturas', 'Qde Total de Tentativas de Cobrança', 'Método de Pagamento', 'Valor Médio da Mensalidade', 'Qde Total de Faturas Pagas após Vencimento', 'Qde Total de Faturas Inadimpletes', 'Valor Total Inadimplência', 'Qde Perfis de Pagamento Inativos']
     df = df.drop(colunas, axis=1)
 
     df['status'] = df['status'].dropna().apply(lastStatus)
