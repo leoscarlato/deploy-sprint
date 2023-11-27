@@ -42,6 +42,7 @@ def main():
         st.sidebar.markdown("---")
         if st.sidebar.button("Logout"):
             st.session_state['logged_in'] = False
+            st.session_state['df'] = None
             st.experimental_rerun()  # Reinicia o aplicativo para atualizar a navegação
 
 if __name__ == "__main__":
