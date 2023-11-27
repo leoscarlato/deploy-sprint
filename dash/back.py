@@ -56,7 +56,7 @@ def login():
 
     user = cursor.fetchone()
 
-    if user and bcrypt.checkpw(password, user[1]):  # Removido o .encode() daqui
+    if user and bcrypt.checkpw(password, user[1]): 
         conn.commit()
         conn.close()
         return {"mensagem": "Usuário autenticado com sucesso!"}, 200
