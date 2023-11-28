@@ -23,6 +23,10 @@ def lastStatus(x):
     s = x.split(';')
     return s[-1].strip()
 
+def converte_para_horas(x):
+    if pd.isnull(x):
+        return None
+    return int(x)/3600
 
 def first_date(x):
     if pd.isnull(x):
@@ -34,10 +38,16 @@ def first_date(x):
 def devolve_media(x):
     if pd.isnull(x):
         return None
-    x = x.replace(',','.')
-    s = x.split(';')
-    s = [float(i) for i in s]
-    return np.mean(s)
+    else:
+        try:
+            x = x.replace(',','.').replace('FALSE', '0')
+            s = x.split(';')
+            s = [float(i) for i in s]
+            return np.mean(s)
+        except Exception as e:
+            print(f"Erro: {e}")
+            return None
+
 
 
 def tem_ou_nao(x):
@@ -58,10 +68,12 @@ def lost_reason_lost(x,y):
 
 def tratamento(df):
 
-    colunas = ['id_person','state', 'city', 'postal_code', 'id_person_recommendation', 'Recebe Comunicados?', 'Interesses', 'Pontos de Atenção',
-            'id_stage', 'id_org', 'status.1', 'activities_count', 'Qde Todos Atendimentos', 'Faltas Todos Atendimento', 'Datas Atendimento Médico',
-            'Datas Acolhimento', 'Datas Psicoterapia','Qde Prescrições', 'Datas Prescrição', 'Qde Respostas WHOQOL']
+    df = df[df['id_person'] != 'FALSE']
 
+    colunas = ['state', 'city', 'postal_code', 'id_person_recommendation', 'Recebe Comunicados?', 'Interesses', 'Pontos de Atenção',
+            'id_stage', 'id_org', 'status.1', 'activities_count', 'Qde Todos Atendimentos', 'Faltas Todos Atendimento', 'Datas Atendimento Médico',
+            'Datas Acolhimento', 'Datas Psicoterapia','Qde Prescrições', 'Datas Prescrição', 'Qde Respostas WHOQOL', 'Ligações Inbound', 'Data Última Ligações Inbound', 'Ligações Outbound', 'Data Última Ligações Outbound',
+            'Qde Total de Faturas', 'Qde Total de Tentativas de Cobrança', 'Método de Pagamento', 'Valor Médio da Mensalidade', 'Qde Total de Faturas Pagas após Vencimento', 'Qde Total de Faturas Inadimpletes', 'Valor Total Inadimplência', 'Qde Perfis de Pagamento Inativos']
     df = df.drop(colunas, axis=1)
 
     df['status'] = df['status'].dropna().apply(lastStatus)
@@ -82,9 +94,10 @@ def tratamento(df):
 
     colunas_de_data = ['contract_start_date', 'start_of_service', 'lost_time', 'add_time', 'won_time', 'lost_time.1', 'contract_end_date']
     colunas_seg = ['stay_in_pipeline_stages_welcome','stay_in_pipeline_stages_first_meeting', 'stay_in_pipeline_stages_whoqol']
-
+    #converter a coluna de segundos para horas
+    
     for coluna in colunas_seg:
-        df[coluna+'_h'] = df[coluna]/3600
+        df[coluna] = df[coluna].apply(converte_para_horas)
 
     df = df.drop(colunas_seg, axis=1)
 
