@@ -104,7 +104,7 @@ def tratamento(df):
     #Trocar a data pelo tempo em dias ate o dia de hoje
     for coluna in colunas_de_data:
         df[coluna] = pd.to_datetime(df[coluna], errors='coerce')
-        df[coluna] = df[coluna].apply(lambda x: (datetime.now() - x).days)
+        # df[coluna] = df[coluna].apply(lambda x: (datetime.now() - x).days)
 
 
     df['Problemas Abertos'] = df['Problemas Abertos'].apply(tem_ou_nao)
