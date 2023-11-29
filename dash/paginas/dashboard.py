@@ -55,7 +55,7 @@ def dashboard():
     df_grouped = df.groupby([df['contract_end_date'].dt.strftime('%Y-%m'), 'status']).size().reset_index(name='Contagem')
 
     # Criar o gráfico de barras
-    fig = px.bar(df_grouped, x=df_grouped['contract_end_date'], y='Contagem', color='status', title="Statuses por mês")
+    fig = px.bar(df_grouped, x=df_grouped['contract_end_date'], y='Contagem', color='status', title="Saintes por mês")
 
     # Atualizar layout para ocultar a legenda
     fig.update_layout(showlegend=False)
