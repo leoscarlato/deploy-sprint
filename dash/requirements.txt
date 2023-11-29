@@ -6,3 +6,4 @@ bcrypt
 Flask
 scikit_learn
 streamlit_option_menu
+plotly
