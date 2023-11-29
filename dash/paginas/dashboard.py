@@ -72,16 +72,39 @@ def dashboard():
     # ======================================================================================================================================
 
     # ====================================== Gráfico dos planos de saúde mais comuns =======================================================
-    df_plan_mais_comum = df[df['status'] == 'won']
-    df_plan_mais_comum = df_plan_mais_comum[df_plan_mais_comum['id_health_plan'].notna()]
 
-    data = df_plan_mais_comum['id_health_plan'].value_counts().reset_index()
-    data.columns = ['id_health_plan', 'count']
+    col1, col2 = st.columns(2)
 
-    df['id_health_plan'] = df['id_health_plan'].fillna('Não Informado')
-    df['id_health_plan'] = df['id_health_plan'].replace(412, 'SUS')
+    with col1:
+    
+        df_plan_mais_comum = df[df['status'] == 'won']
+        df_plan_mais_comum = df_plan_mais_comum[df_plan_mais_comum['id_health_plan'].notna()]
 
-    df['id_health_plan'] = df['id_health_plan'].apply(lambda x: 'Particular' if type(x) == float else x)
+        data = df_plan_mais_comum['id_health_plan'].value_counts().reset_index()
+        data.columns = ['id_health_plan', 'count']
 
-    fig = px.pie(data, names='id_health_plan', values='count', title='Planos de Saúde Mais Comuns', hole=0.4)
-    st.plotly_chart(fig, use_container_width=True)
+        df['id_health_plan'] = df['id_health_plan'].fillna('Não Informado')
+        df['id_health_plan'] = df['id_health_plan'].replace(412, 'SUS')
+
+        df['id_health_plan'] = df['id_health_plan'].apply(lambda x: 'Particular' if type(x) == float else x)
+
+        fig = px.pie(data, names='id_health_plan', values='count', title='Planos de Saúde Mais Comuns', hole=0.4)
+        st.plotly_chart(fig, use_container_width=True)
+
+    # ======================================================================================================================================
+
+    # ================================================ Tipos de Atendimento ===============================================================
+    
+    with col2:
+    
+        labels = ["Médico", "Acolhimento", "Psicoterapia"]
+        values = [df["Qde Atendimento Médico"].sum(), df["Qde Atendimentos Acolhimento"].sum(), df["Qde Psicoterapia"].sum()]
+
+        fig = px.pie(values=values, names=labels, title="Quantidade de Cada Tipo de Atendimento", hole=0.4) 
+        st.plotly_chart(fig, use_container_width=True)
+
+    # ======================================================================================================================================
+
+    # ================================================ Ranking top problemas abertos =======================================================
+
+    
