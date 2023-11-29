@@ -52,6 +52,12 @@ def tem_ou_nao(x):
         return 0
     return 1
 
+def retornaTempo(x,y):
+    if y==None:
+        return None
+    
+    return (y-x).days
+
 
 def lost_reason_lost(x,y):
     if pd.isnull(x) or pd.isnull(y):
@@ -88,7 +94,7 @@ def tratamento(df):
         df[coluna] = df[coluna].apply(devolve_media)
 
 
-    colunas_de_data = ['contract_start_date', 'start_of_service', 'lost_time', 'add_time', 'won_time', 'lost_time.1', 'contract_end_date']
+    colunas_de_data = ['start_of_service', 'lost_time', 'add_time', 'won_time', 'lost_time.1']
     colunas_seg = ['stay_in_pipeline_stages_welcome','stay_in_pipeline_stages_first_meeting', 'stay_in_pipeline_stages_whoqol']
     #converter a coluna de segundos para horas
     
@@ -102,6 +108,10 @@ def tratamento(df):
         df[coluna] = pd.to_datetime(df[coluna], errors='coerce')
         df[coluna] = df[coluna].apply(lambda x: (datetime.now() - x).days)
 
+    df['contract_end_date'] = pd.to_datetime(df['contract_end_date'])
+    df['contract_start_date'] = pd.to_datetime(df['contract_start_date'])
+    
+    df['Tempo até Sair'] = df.apply(lambda row: retornaTempo(row['contract_start_date'], row['contract_end_date']), axis=1)
 
     df['Problemas Abertos'] = df['Problemas Abertos'].apply(tem_ou_nao)
     df_simple = df[df['status'].isin(['won', 'lost'])]
