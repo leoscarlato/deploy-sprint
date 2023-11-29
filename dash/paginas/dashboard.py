@@ -83,5 +83,5 @@ def dashboard():
 
     df['id_health_plan'] = df['id_health_plan'].apply(lambda x: 'Particular' if type(x) == float else x)
 
-    fig = px.pie(data, names='id_health_plan', values='count', title='Planos de Saúde Mais Comuns', hole=0.4)
+    fig = px.pie(data, names='id_health_plan', values='count', title='Planos de Saúde Mais Comuns', hole=0.4, color_discrete_sequence=px.colors.sequential.RdBu)
     st.plotly_chart(fig, use_container_width=True)
