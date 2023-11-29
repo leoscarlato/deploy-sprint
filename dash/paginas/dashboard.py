@@ -75,9 +75,6 @@ def dashboard():
     df_plan_mais_comum = df[df['status'] == 'won']
     df_plan_mais_comum = df_plan_mais_comum[df_plan_mais_comum['id_health_plan'].notna()]
 
-    top_7_values = df_plan_mais_comum['id_health_plan'].value_counts().nlargest(7).index
-    df_plan_mais_comum['id_health_plan'] = df_plan_mais_comum['id_health_plan'].apply(lambda x: x if x in top_7_values else 'Outros')
-
     data = df_plan_mais_comum['id_health_plan'].value_counts().reset_index()
     data.columns = ['id_health_plan', 'count']
 
@@ -88,7 +85,3 @@ def dashboard():
 
     fig = px.pie(data, names='id_health_plan', values='count', title='Planos de Saúde Mais Comuns', hole=0.4)
     st.plotly_chart(fig, use_container_width=True)
-
-
-
-    
