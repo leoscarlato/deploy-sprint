@@ -28,13 +28,10 @@ def main():
         with st.sidebar:
             st.title("Menu")
             page = option_menu("Navegar",
-                               options=["Dados", "Dashboard"],
-                               icons=["📊", "📈"],
+                               options=["Dashboard"],
+                               icons=["📈"],
                                menu_icon="cast", default_index=0)
-
-        if page == "Dados":
-            dados()
-        elif page == "Dashboard":
+        if page == "Dashboard":
             dashboard()
 
         # logout
