@@ -2,68 +2,20 @@ import streamlit as st
 import plotly.express as px
 from datetime import datetime
 import pandas as pd
-import streamlit_shadcn_ui as ui
-from script_dataframe import tratamento
 
 def dashboard():
     st.title("📈 Dashboard")
-    
-    if 'df' not in st.session_state:
-        st.session_state.df = None
-
-    # Adicionar arquivo
-    arquivo_upload = st.file_uploader("",type="csv")
-
-    if arquivo_upload is None:
-        st.warning("Por favor, selecione um arquivo CSV.")
-        return
-
-    if arquivo_upload is not None:
-        # Ler o arquivo CSV em um DataFrame
-        df = pd.read_csv(arquivo_upload, header=1)
-        df = tratamento(df)
-        st.session_state.df = df
-        st.success("Arquivo carregado com sucesso!")
 
     df = st.session_state.df
 
-    # ===================================== Número de pessoas com contrato ativo =================================================================
-
-    count_active_users = df[df['status'] == 'won']['status'].count().astype(str)
-    count_active_users = count_active_users + " pessoas"
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        ui.metric_card("Número de pessoas com contrato ativo", count_active_users, "👥")
-
-    # =============================================================================================================================================
-
-    # ===================================== Número de pessoas com contrato cancelado ===========================================================
-
-    count_lost_users = df[df['status'] == 'lost']['status'].count().astype(str)
-    count_lost_users = count_lost_users + " pessoas"
-
-    with col2:
-        ui.metric_card("Número de pessoas com contrato cancelado", count_lost_users, "👥")
-
-    # =============================================================================================================================================
-
     # ===================================== Gráfico de barras com a quantidade de entrantes e saintes por mês =====================================
 
-    # Agrupar por mês e status, e contar as ocorrências
-    df_grouped = df.groupby([df['contract_end_date'].dt.strftime('%Y-%m'), 'status']).size().reset_index(name='Contagem')
-
-    # Criar o gráfico de barras
-    fig = px.bar(df_grouped, x=df_grouped['contract_end_date'], y='Contagem', color='status', title="Statuses por mês")
-
-    # Atualizar layout para ocultar a legenda
+    fig = px.bar(df, x='contract_end_date', y='status', color='status', title="Saintes por mês")
     fig.update_layout(showlegend=False)
-
-    # Mostrar o gráfico no Streamlit
     st.plotly_chart(fig, use_container_width=True)
 
     # =============================================================================================================================================
+
 
     col1, col2 = st.columns(2)
 
@@ -125,18 +77,17 @@ def dashboard():
 
     with col1:
     
-        df['id_health_plan'] = df['id_health_plan'].fillna('Não Informado')
-        df['id_health_plan'] = df['id_health_plan'].replace(412, 'SUS')
-        df['id_health_plan'] = df['id_health_plan'].apply(lambda x: 'Particular' if isinstance(x, float) and not pd.isnull(x) else x)
-
-        # Agora filtre para status 'won' após ter feito as substituições
         df_plan_mais_comum = df[df['status'] == 'won']
+        df_plan_mais_comum = df_plan_mais_comum[df_plan_mais_comum['id_health_plan'].notna()]
 
-        # Contagem de valores de 'id_health_plan' para as linhas filtradas
         data = df_plan_mais_comum['id_health_plan'].value_counts().reset_index()
         data.columns = ['id_health_plan', 'count']
 
-        # Crie o gráfico de pizza com os dados corrigidos
+        df['id_health_plan'] = df['id_health_plan'].fillna('Não Informado')
+        df['id_health_plan'] = df['id_health_plan'].replace(412, 'SUS')
+
+        df['id_health_plan'] = df['id_health_plan'].apply(lambda x: 'Particular' if type(x) == float else x)
+
         fig = px.pie(data, names='id_health_plan', values='count', title='Planos de Saúde Mais Comuns', hole=0.4)
         st.plotly_chart(fig, use_container_width=True)
 
