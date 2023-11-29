@@ -37,8 +37,6 @@ def verifica_usuario(email, senha):
 
 def login():
     st.title("Login")
-
-    st.write("Oi")
     
     email = st.text_input("Email", key="email_login")
     password = st.text_input("Password", type="password", key="password_login")
