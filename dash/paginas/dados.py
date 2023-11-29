@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import io
+from script_dataframe import tratamento
 
 def dados():
     st.title("Dados")
@@ -15,8 +16,9 @@ def dados():
     if arquivo_upload is not None:
         # Ler o arquivo CSV em um DataFrame
         df = pd.read_csv(arquivo_upload, header=1)
+        df = tratamento(df)
         st.session_state.df = df
-        st.write("Arquivo carregado com sucesso!")
+        st.success("Arquivo carregado com sucesso!")
 
     if st.session_state.df is not None:
         st.dataframe(st.session_state.df)

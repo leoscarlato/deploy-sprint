@@ -19,6 +19,9 @@ def cadastro():
     username = data['email']
     password = data['password'].encode('utf-8')
 
+    if "@anahealth.app" not in username:
+        return {"mensagem": "Email inválido!"}, 400
+
     # Gerar um hash da senha
     hashed = bcrypt.hashpw(password, bcrypt.gensalt())
 
@@ -63,7 +66,7 @@ def login():
     else:
         conn.commit()
         conn.close()
-        return {"mensagem": "Usuário ou senha inválidos!"}, 401
+        return {"mensagem": "E-mail ou senha inválidos!"}, 401
 
 
 if __name__ == '__main__':
