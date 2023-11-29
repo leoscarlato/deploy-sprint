@@ -1,7 +1,6 @@
 import streamlit as st
 from paginas.cadastro import cadastro
 from paginas.login import login
-from paginas.dados import dados
 from streamlit_option_menu import option_menu
 from paginas.dashboard import dashboard
 
