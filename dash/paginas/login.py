@@ -1,5 +1,39 @@
 import streamlit as st
-import requests
+import bcrypt
+import sqlite3
+
+def verifica_usuario(email, senha):
+    # Conectar ao banco de dados
+    conn = sqlite3.connect('db/database.db')
+    cursor = conn.cursor()
+
+    try:
+        # Verificar se o usuário existe no banco de dados
+        cursor.execute("""
+        SELECT * FROM users
+        WHERE email = ?
+        """, (email,))
+
+        user = cursor.fetchone()
+
+        if user:
+            stored_password_hash = user[1]
+            if isinstance(stored_password_hash, str):
+                stored_password_hash = stored_password_hash.encode('utf-8')
+            
+            if bcrypt.checkpw(senha.encode('utf-8'), stored_password_hash):
+                conn.close()
+                return True
+            else:
+                conn.close()
+                return False
+        else:
+            conn.close()
+            return False
+        
+    except ValueError as e:
+        conn.close()
+        return False
 
 def login():
     st.title("Login")
@@ -9,10 +43,7 @@ def login():
     submit = st.button("Login")
 
     if submit:
-        url = "http://localhost:5000/login"
-        data = {"email": email, "password": password}
-        response = requests.post(url, json=data)
-        if response.status_code == 200:
+        if verifica_usuario(email, password):
             st.success("Login realizado com sucesso!")
             return True
         else:
