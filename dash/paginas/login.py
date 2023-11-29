@@ -4,7 +4,7 @@ import sqlite3
 
 def verifica_usuario(email, senha):
     # Conectar ao banco de dados
-    conn = sqlite3.connect('db/database.db')
+    conn = sqlite3.connect('dash/db/database.db')
     cursor = conn.cursor()
 
     try:

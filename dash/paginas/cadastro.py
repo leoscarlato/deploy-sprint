@@ -18,7 +18,7 @@ def cadastrar_usuario(email, password):
             return False
         
         # Conectar ao banco de dados
-        conn = sqlite3.connect('db/database.db')
+        conn = sqlite3.connect('dash/db/database.db')
         cursor = conn.cursor()
         
         # Inserir o usuário no banco de dados
