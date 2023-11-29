@@ -88,7 +88,3 @@ def dashboard():
 
     fig = px.pie(data, names='id_health_plan', values='count', title='Planos de Saúde Mais Comuns', hole=0.4)
     st.plotly_chart(fig, use_container_width=True)
-
-
-
-    
