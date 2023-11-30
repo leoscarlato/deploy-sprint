@@ -74,7 +74,7 @@ def tratamento(df):
     df = df[df['id_person'] != 'FALSE']
 
     colunas = ['state', 'city', 'postal_code', 'id_person_recommendation', 'Recebe Comunicados?', 'Interesses', 'Pontos de Atenção',
-            'id_stage', 'id_org', 'status.1', 'activities_count', 'Qde Todos Atendimentos', 'Faltas Todos Atendimento', 'Datas Atendimento Médico',
+            'id_stage', 'id_org', 'status.1', 'activities_count', 'Datas Atendimento Médico',
             'Datas Acolhimento', 'Datas Psicoterapia','Qde Prescrições', 'Datas Prescrição', 'Qde Respostas WHOQOL']
     df = df.drop(colunas, axis=1)
 
@@ -113,7 +113,7 @@ def tratamento(df):
     
     df['Tempo até Sair'] = df.apply(lambda row: retornaTempo(row['contract_start_date'], row['contract_end_date']), axis=1)
 
-    df['Problemas Abertos'] = df['Problemas Abertos'].apply(tem_ou_nao)
+    df['Tem Problema em Aberto'] = df['Problemas Abertos'].apply(tem_ou_nao)
     df_simple = df[df['status'].isin(['won', 'lost'])]
     f1 = df_simple[(df_simple['status'] == 'won') & (df_simple['contract_end_date'].isna())] 
     f2 = df_simple[(df_simple['status'] == 'lost') & (df_simple['contract_end_date'].notna())] 
