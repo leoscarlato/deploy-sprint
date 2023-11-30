@@ -1,7 +1,6 @@
 import streamlit as st
 from paginas.cadastro import cadastro
 from paginas.login import login
-from paginas.dados import dados
 from streamlit_option_menu import option_menu
 from paginas.dashboard import dashboard
 
@@ -29,13 +28,10 @@ def main():
         with st.sidebar:
             st.title("Menu")
             page = option_menu("Navegar",
-                               options=["Dados", "Dashboard"],
-                               icons=["📊", "📈"],
+                               options=["Dashboard"],
+                               icons=["📈"],
                                menu_icon="cast", default_index=0)
-
-        if page == "Dados":
-            dados()
-        elif page == "Dashboard":
+        if page == "Dashboard":
             dashboard()
 
         # logout
