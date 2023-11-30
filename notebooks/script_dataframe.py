@@ -113,7 +113,7 @@ def tratamento(df):
     
     df['Tempo até Sair'] = df.apply(lambda row: retornaTempo(row['contract_start_date'], row['contract_end_date']), axis=1)
 
-    df['Problemas Abertos'] = df['Problemas Abertos'].apply(tem_ou_nao)
+    df['Tem Problema em Aberto'] = df['Problemas Abertos'].apply(tem_ou_nao)
     df_simple = df[df['status'].isin(['won', 'lost'])]
     f1 = df_simple[(df_simple['status'] == 'won') & (df_simple['contract_end_date'].isna())] 
     f2 = df_simple[(df_simple['status'] == 'lost') & (df_simple['contract_end_date'].notna())] 
