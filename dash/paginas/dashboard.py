@@ -7,23 +7,6 @@ from script_dataframe import tratamento
 
 def dashboard():
     st.title("📈 Dashboard")
-    
-    if 'df' not in st.session_state:
-        st.session_state.df = None
-
-    # Adicionar arquivo
-    arquivo_upload = st.file_uploader("",type="csv", key="arquivo_upload")
-
-    if arquivo_upload is None:
-        st.warning("Por favor, selecione um arquivo CSV.")
-        return
-
-    if arquivo_upload is not None:
-        # Ler o arquivo CSV em um DataFrame
-        df = pd.read_csv(arquivo_upload, header=1)
-        df = tratamento(df)
-        st.session_state.df = df
-        st.success("Arquivo carregado com sucesso!")
 
     df = st.session_state.get('df', None)
 
