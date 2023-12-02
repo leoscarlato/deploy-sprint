@@ -2,6 +2,21 @@ import streamlit as st
 import bcrypt
 import sqlite3
 
+def buscar_username(email):
+    # Conectar ao banco de dados
+    conn = sqlite3.connect('db/database.db')
+    cursor = conn.cursor()
+
+    try:
+        # Verificar se o usuário existe no banco de dados
+        cursor.execute("""SELECT username FROM users WHERE email = ?""", (email,))
+        username = cursor.fetchone()
+        conn.close()
+        return username[0]
+    except ValueError as e:
+        conn.close()
+        return False
+
 def verifica_usuario(email, senha):
     # Conectar ao banco de dados
     conn = sqlite3.connect('db/database.db')
@@ -9,15 +24,11 @@ def verifica_usuario(email, senha):
 
     try:
         # Verificar se o usuário existe no banco de dados
-        cursor.execute("""
-        SELECT * FROM users
-        WHERE email = ?
-        """, (email,))
-
+        cursor.execute("""SELECT password FROM users WHERE email = ?""", (email,))
         user = cursor.fetchone()
 
         if user:
-            stored_password_hash = user[1]
+            stored_password_hash = user[0]  # Assuming password hash is in the first position
             if isinstance(stored_password_hash, str):
                 stored_password_hash = stored_password_hash.encode('utf-8')
             
@@ -31,9 +42,11 @@ def verifica_usuario(email, senha):
             conn.close()
             return False
         
-    except ValueError as e:
+    except Exception as e:  # Catch a broader range of exceptions
+        print(f"Error during authentication: {e}")  # Added for debugging
         conn.close()
         return False
+
 
 def login():
     st.title("Login")
@@ -43,7 +56,9 @@ def login():
     submit = st.button("Login")
 
     if submit:
-        if verifica_usuario(email, password):
+        if verifica_usuario(email, password): 
+            username = buscar_username(email)
+            st.session_state['user_name'] = username           
             st.success("Login realizado com sucesso!")
             return True
         else:
