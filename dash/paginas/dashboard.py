@@ -12,7 +12,7 @@ def dashboard():
         st.session_state.df = None
 
     # Adicionar arquivo
-    arquivo_upload = st.file_uploader("",type="csv")
+    arquivo_upload = st.file_uploader("",type="csv", key="arquivo_upload")
 
     if arquivo_upload is None:
         st.warning("Por favor, selecione um arquivo CSV.")
