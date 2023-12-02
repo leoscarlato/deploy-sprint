@@ -2,14 +2,14 @@ import streamlit as st
 import bcrypt
 import sqlite3
 
-def cadastrar_usuario(email, password):
+def cadastrar_usuario(email, username, password):
     # Gerar um hash da senha
 
     password_encoded = password.encode('utf-8')
 
     hashed = bcrypt.hashpw(password_encoded, bcrypt.gensalt())
 
-    if email == "" or password == "":
+    if email == "" or password == "" or username == "":
         st.error("Erro ao cadastrar usuário!")
         return False
     else:
@@ -23,9 +23,9 @@ def cadastrar_usuario(email, password):
         
         # Inserir o usuário no banco de dados
         cursor.execute("""
-        INSERT INTO users (email, password)
-        VALUES (?, ?)
-        """, (email, hashed))
+        INSERT INTO users (username, password, email)
+        VALUES (?, ?, ?)
+        """, (username, hashed, email))
 
         # Salvar as alterações
         conn.commit()
@@ -39,9 +39,10 @@ def cadastro():
     st.title("Cadastro")
     
     email = st.text_input("Email")
+    username = st.text_input("Username")
     password = st.text_input("Password", type="password")
     submit = st.button("Cadastro")
 
     if submit:
-        cadastrar_usuario(email, password)
+        cadastrar_usuario(email, username, password)
 
