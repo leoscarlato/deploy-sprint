@@ -75,6 +75,15 @@ def main():
             if st.sidebar.button("Logout"):
                 st.session_state['logged_in'] = False
                 st.session_state['df'] = None
+                # create log of logout
+
+                
+                conn = sqlite3.connect('db/database.db')
+                cursor = conn.cursor()
+
+                # cursor        
+
+
                 st.experimental_rerun()  # Reinicia o aplicativo para atualizar a navegação
             
         dashboard()
