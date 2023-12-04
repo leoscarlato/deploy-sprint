@@ -62,7 +62,7 @@ def login():
             username = buscar_username(email)
 
             # Criar um log de autenticação
-            conn = sqlite3.connect('db/database.db')
+            conn = sqlite3.connect('dash/db/database.db')
             cursor = conn.cursor()
             cursor.execute("""
             INSERT INTO auth_logs (username, time, type)
@@ -79,7 +79,7 @@ def login():
             st.error("Erro ao realizar login!")
 
             # Criar um log de autenticação
-            conn = sqlite3.connect('db/database.db')
+            conn = sqlite3.connect('dash/db/database.db')
             cursor = conn.cursor()
             cursor.execute("""
             INSERT INTO auth_logs (username, time, type)
