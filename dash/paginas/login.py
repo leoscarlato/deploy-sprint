@@ -44,6 +44,8 @@ def verifica_usuario(email, senha):
         
     except Exception as e:  # Catch a broader range of exceptions
         print(f"Error during authentication: {e}")  # Added for debugging
+
+        
         conn.close()
         return False
 
@@ -58,9 +60,33 @@ def login():
     if submit:
         if verifica_usuario(email, password): 
             username = buscar_username(email)
+
+            # Criar um log de autenticação
+            conn = sqlite3.connect('db/database.db')
+            cursor = conn.cursor()
+            cursor.execute("""
+            INSERT INTO auth_logs (username, time, type)
+            VALUES (?, datetime('now'), 'login')
+            """, (username,))
+            conn.commit()
+            conn.close()
+
+
             st.session_state['user_name'] = username           
             st.success("Login realizado com sucesso!")
             return True
         else:
             st.error("Erro ao realizar login!")
+
+            # Criar um log de autenticação
+            conn = sqlite3.connect('db/database.db')
+            cursor = conn.cursor()
+            cursor.execute("""
+            INSERT INTO auth_logs (username, time, type)
+            VALUES (?, datetime('now'), 'login')
+            """, (email,))
+            conn.commit()
+            conn.close()
+
+            
             return False
