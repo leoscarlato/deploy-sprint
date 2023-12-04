@@ -23,23 +23,25 @@ def dashboard():
 
     # ===================================== Número de pessoas com contrato ativo =================================================================
 
-    count_active_users = df_filtrado[df_filtrado['status'] == 'won']['status'].count().astype(str)
+    # contrato ativo -> contract_end_date = NaT e status = won
+    count_active_users = df_filtrado[(df_filtrado['contract_end_date'].isna()) & (df_filtrado['status'] == 'won')]['status'].count().astype(str)
     count_active_users = count_active_users + " pessoas"
 
     col1, col2 = st.columns(2)
 
     with col1:
-        ui.metric_card("Número de pessoas com contrato ativo", count_active_users, "👥")
+        ui.metric_card("Número de pessoas que ativaram o contrato", count_active_users, "👥")
 
     # =============================================================================================================================================
 
     # ===================================== Número de pessoas com contrato cancelado ===========================================================
 
-    count_lost_users = df_filtrado[df_filtrado['status'] == 'lost']['status'].count().astype(str)
-    count_lost_users = count_lost_users + " pessoas"
+    # contrato cancelado -> contract_end_date != NaT e status = lost
+    count_canceled_users = df_filtrado[(df_filtrado['contract_end_date'].notna()) & (df_filtrado['status'] == 'lost')]['status'].count().astype(str)
+    count_canceled_users = count_canceled_users + " pessoas"
 
     with col2:
-        ui.metric_card("Número de pessoas com contrato cancelado", count_lost_users, "👥")
+        ui.metric_card("Número de pessoas que cancelaram o contrato", count_canceled_users, "👥")
 
     # =============================================================================================================================================
 
