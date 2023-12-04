@@ -2,9 +2,11 @@ import streamlit as st
 import bcrypt
 import sqlite3
 
+db_path = 'db/database.db'
+
 def buscar_username(email):
     # Conectar ao banco de dados
-    conn = sqlite3.connect('dash/db/database.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     try:
@@ -19,7 +21,7 @@ def buscar_username(email):
 
 def verifica_usuario(email, senha):
     # Conectar ao banco de dados
-    conn = sqlite3.connect('dash/db/database.db')
+    conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
 
     try:
@@ -62,7 +64,7 @@ def login():
             username = buscar_username(email)
 
             # Criar um log de autenticação
-            conn = sqlite3.connect('dash/db/database.db')
+            conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
             cursor.execute("""
             INSERT INTO auth_logs (username, time, type)
@@ -79,7 +81,7 @@ def login():
             st.error("Erro ao realizar login!")
 
             # Criar um log de autenticação
-            conn = sqlite3.connect('dash/db/database.db')
+            conn = sqlite3.connect(db_path)
             cursor = conn.cursor()
             cursor.execute("""
             INSERT INTO auth_logs (username, time, type)

@@ -7,6 +7,8 @@ import pandas as pd
 from script_dataframe import tratamento
 import sqlite3
 
+db_path = 'db/database.db'
+
 # Inicializando o estado de login
 if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False
@@ -77,7 +79,7 @@ def main():
                 st.session_state['logged_in'] = False
                 st.session_state['df'] = None
                 
-                conn = sqlite3.connect('dash/db/database.db')
+                conn = sqlite3.connect(db_path)
                 cursor = conn.cursor()
                 cursor.execute("""
                 INSERT INTO auth_logs (username, time, type)

@@ -2,6 +2,8 @@ import streamlit as st
 import bcrypt
 import sqlite3
 
+db_path = 'db/database.db'
+
 def cadastrar_usuario(email, username, password):
     # Gerar um hash da senha
 
@@ -18,7 +20,7 @@ def cadastrar_usuario(email, username, password):
             return False
         
         # Conectar ao banco de dados
-        conn = sqlite3.connect('dash/db/database.db')
+        conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
         
         # Inserir o usuário no banco de dados
