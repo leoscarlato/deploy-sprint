@@ -27,6 +27,12 @@ def cadastrar_usuario(email, username, password):
         VALUES (?, ?, ?)
         """, (username, hashed, email))
 
+        # Criar um log de autenticação
+        cursor.execute("""
+        INSERT INTO auth_logs (username, time, type)
+        VALUES (?, datetime('now'), 'register')
+        """, (username,))
+
         # Salvar as alterações
         conn.commit()
         conn.close()
