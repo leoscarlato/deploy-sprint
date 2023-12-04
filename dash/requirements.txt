@@ -8,3 +8,4 @@ scikit_learn
 streamlit_option_menu
 plotly
 streamlit_shadcn_ui
+mysql.connector
