@@ -7,7 +7,7 @@ import pandas as pd
 from script_dataframe import tratamento
 import sqlite3
 
-db_path = 'db/database.db'
+db_path = 'dash/db/database.db'
 
 # Inicializando o estado de login
 if 'logged_in' not in st.session_state:

@@ -2,7 +2,7 @@ import streamlit as st
 import bcrypt
 import sqlite3
 
-db_path = 'db/database.db'
+db_path = 'dash/db/database.db'
 
 def cadastrar_usuario(email, username, password):
     # Gerar um hash da senha
