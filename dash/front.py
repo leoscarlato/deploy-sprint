@@ -5,6 +5,7 @@ from streamlit_option_menu import option_menu
 from paginas.dashboard import dashboard
 import pandas as pd
 from script_dataframe import tratamento
+import sqlite3
 
 # Inicializando o estado de login
 if 'logged_in' not in st.session_state:
@@ -75,13 +76,17 @@ def main():
             if st.sidebar.button("Logout"):
                 st.session_state['logged_in'] = False
                 st.session_state['df'] = None
-                # create log of logout
-
                 
                 conn = sqlite3.connect('db/database.db')
                 cursor = conn.cursor()
+                cursor.execute("""
+                INSERT INTO auth_logs (username, time, type)
+                VALUES (?, datetime('now'), 'logout')
+                """, (st.session_state['user_name'],))
 
-                # cursor        
+                conn.commit()
+                conn.close()
+
 
 
                 st.experimental_rerun()  # Reinicia o aplicativo para atualizar a navegação
