@@ -5,9 +5,16 @@ from streamlit_option_menu import option_menu
 from paginas.dashboard import dashboard
 import pandas as pd
 from script_dataframe import tratamento
-import sqlite3
+import mysql.connector
+from mysql.connector import Error
 
-db_path = 'dash/db/database.db'
+# Substitua com os detalhes do seu banco de dados MySQL
+db_config = {
+    'database': st.secrets["connections.mysql"]['database'],
+    'user': st.secrets["connections.mysql"]['user'],
+    'password': st.secrets["connections.mysql"]['password'],
+    'host': st.secrets["connections.mysql"]['host']
+}
 
 # Inicializando o estado de login
 if 'logged_in' not in st.session_state:
@@ -18,7 +25,7 @@ if 'df' not in st.session_state:
     st.session_state['df'] = None
 
 if 'file_uploaded' not in st.session_state:
-    st.session_state['file_uploaded'] = False  # Flag para controlar a exibição das opções de data
+    st.session_state['file_uploaded'] = False
 
 def main():
     st.set_page_config(page_title="Dash", page_icon="📊", layout="wide")
@@ -74,27 +81,34 @@ def main():
                     st.error(f"Erro ao carregar filtros de data: {e}")
             st.markdown("---")
 
-            # Botão de logout fora do bloco condicional do df
+             # Botão de logout
             if st.sidebar.button("Logout"):
                 st.session_state['logged_in'] = False
                 st.session_state['df'] = None
-                
-                conn = sqlite3.connect(db_path)
-                cursor = conn.cursor()
-                cursor.execute("""
-                INSERT INTO auth_logs (username, time, type)
-                VALUES (?, datetime('now'), 'logout')
-                """, (st.session_state['user_name'],))
 
-                conn.commit()
-                conn.close()
+                try:
+                    conn = mysql.connector.connect(**db_config)
+                    cursor = conn.cursor()
 
+                    # Insere o log de logout
+                    query = """
+                        INSERT INTO auth_logs (username, time, type)
+                        VALUES (%s, NOW(), 'logout')
+                    """
+                    cursor.execute(query, (st.session_state['user_name'],))
 
+                    conn.commit()
 
-                st.experimental_rerun()  # Reinicia o aplicativo para atualizar a navegação
-            
+                except Error as e:
+                    st.error(f"Erro ao conectar ao banco de dados: {e}")
+                finally:
+                    if conn.is_connected():
+                        cursor.close()
+                        conn.close()
+
+                st.experimental_rerun()
+
         dashboard()
-        
 
 if __name__ == "__main__":
     main()

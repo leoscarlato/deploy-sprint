@@ -1,56 +1,63 @@
 import streamlit as st
 import bcrypt
-import sqlite3
+import mysql.connector
+from mysql.connector import Error
 
-db_path = 'dash/db/database.db'
+# Configurações do banco de dados MySQL
+db_config = {
+    'database': st.secrets["connections.mysql"]['database'],
+    'user': st.secrets["connections.mysql"]['user'],
+    'password': st.secrets["connections.mysql"]['password'],
+    'host': st.secrets["connections.mysql"]['host']
+}
 
 def buscar_username(email):
-    # Conectar ao banco de dados
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
     try:
-        # Verificar se o usuário existe no banco de dados
-        cursor.execute("""SELECT username FROM users WHERE email = ?""", (email,))
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        query = "SELECT username FROM users WHERE email = %s"
+        cursor.execute(query, (email,))
         username = cursor.fetchone()
-        conn.close()
-        return username[0]
-    except ValueError as e:
-        conn.close()
-        return False
+
+        return username[0] if username else None
+
+    except Error as e:
+        st.error(f"Erro ao conectar ao banco de dados: {e}")
+        return None
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
 
 def verifica_usuario(email, senha):
-    # Conectar ao banco de dados
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
     try:
-        # Verificar se o usuário existe no banco de dados
-        cursor.execute("""SELECT password FROM users WHERE email = ?""", (email,))
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+
+        query = "SELECT password FROM users WHERE email = %s"
+        cursor.execute(query, (email,))
         user = cursor.fetchone()
 
         if user:
-            stored_password_hash = user[0]  # Assuming password hash is in the first position
+            stored_password_hash = user[0]
             if isinstance(stored_password_hash, str):
                 stored_password_hash = stored_password_hash.encode('utf-8')
             
             if bcrypt.checkpw(senha.encode('utf-8'), stored_password_hash):
-                conn.close()
                 return True
             else:
-                conn.close()
                 return False
         else:
-            conn.close()
             return False
         
-    except Exception as e:  # Catch a broader range of exceptions
-        print(f"Error during authentication: {e}")  # Added for debugging
-
-        
-        conn.close()
+    except Error as e:
+        st.error(f"Erro durante a autenticação: {e}")
         return False
-
+    finally:
+        if conn.is_connected():
+            cursor.close()
+            conn.close()
 
 def login():
     st.title("Login")
@@ -63,16 +70,23 @@ def login():
         if verifica_usuario(email, password): 
             username = buscar_username(email)
 
-            # Criar um log de autenticação
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            cursor.execute("""
-            INSERT INTO auth_logs (username, time, type)
-            VALUES (?, datetime('now'), 'login')
-            """, (username,))
-            conn.commit()
-            conn.close()
+            try:
+                conn = mysql.connector.connect(**db_config)
+                cursor = conn.cursor()
 
+                query = """
+                    INSERT INTO auth_logs (username, time, type)
+                    VALUES (%s, NOW(), 'login')
+                """
+                cursor.execute(query, (username,))
+                conn.commit()
+
+            except Error as e:
+                st.error(f"Erro ao conectar ao banco de dados: {e}")
+            finally:
+                if conn.is_connected():
+                    cursor.close()
+                    conn.close()
 
             st.session_state['user_name'] = username           
             st.success("Login realizado com sucesso!")
@@ -80,15 +94,22 @@ def login():
         else:
             st.error("Erro ao realizar login!")
 
-            # Criar um log de autenticação
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-            cursor.execute("""
-            INSERT INTO auth_logs (username, time, type)
-            VALUES (?, datetime('now'), 'login')
-            """, (email,))
-            conn.commit()
-            conn.close()
+            try:
+                conn = mysql.connector.connect(**db_config)
+                cursor = conn.cursor()
 
+                query = """
+                    INSERT INTO auth_logs (username, time, type)
+                    VALUES (%s, NOW(), 'failed_login')
+                """
+                cursor.execute(query, (email,))
+                conn.commit()
+
+            except Error as e:
+                st.error(f"Erro ao conectar ao banco de dados: {e}")
+            finally:
+                if conn.is_connected():
+                    cursor.close()
+                    conn.close()
             
             return False

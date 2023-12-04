@@ -1,14 +1,12 @@
 import streamlit as st
 import bcrypt
-import sqlite3
+import mysql.connector
+from mysql.connector import Error
 
-db_path = 'dash/db/database.db'
 
 def cadastrar_usuario(email, username, password):
     # Gerar um hash da senha
-
     password_encoded = password.encode('utf-8')
-
     hashed = bcrypt.hashpw(password_encoded, bcrypt.gensalt())
 
     if email == "" or password == "" or username == "":
@@ -18,34 +16,50 @@ def cadastrar_usuario(email, username, password):
         if "@anahealth.app" not in email:
             st.error("E-mail inválido!")
             return False
-        
-        # Conectar ao banco de dados
-        conn = sqlite3.connect(db_path)
-        cursor = conn.cursor()
-        
-        # Inserir o usuário no banco de dados
-        cursor.execute("""
-        INSERT INTO users (username, password, email)
-        VALUES (?, ?, ?)
-        """, (username, hashed, email))
 
-        # Criar um log de autenticação
-        cursor.execute("""
-        INSERT INTO auth_logs (username, time, type)
-        VALUES (?, datetime('now'), 'register')
-        """, (username,))
+        try:
 
-        # Salvar as alterações
-        conn.commit()
-        conn.close()
+            print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+            print(st.secrets["connections.mysql"]['database'])
 
+            conn = mysql.connector.connect(
+                database=st.secrets['database'],
+                user=st.secrets['user'],
+                password=st.secrets['password'],
+                host=st.secrets['host']
+            )
+            cursor = conn.cursor()
+
+            # Inserir o usuário no banco de dados
+            query = """
+                INSERT INTO users (username, password, email)
+                VALUES (%s, %s, %s)
+            """
+            cursor.execute(query, (username, hashed.decode('utf-8'), email))
+
+            # Criar um log de autenticação
+            query = """
+                INSERT INTO auth_logs (username, time, type)
+                VALUES (%s, NOW(), 'register')
+            """
+            cursor.execute(query, (username,))
+
+            # Salvar as alterações
+            conn.commit()
+
+        except Error as e:
+            st.error(f"Erro ao conectar ao banco de dados: {e}")
+            return False
+        finally:
+            if conn.is_connected():
+                cursor.close()
+                conn.close()
         st.success("Cadastro realizado com sucesso!")
-        
         return True
 
 def cadastro():
     st.title("Cadastro")
-    
+
     email = st.text_input("Email")
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
@@ -53,4 +67,3 @@ def cadastro():
 
     if submit:
         cadastrar_usuario(email, username, password)
-
