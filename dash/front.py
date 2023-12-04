@@ -77,7 +77,7 @@ def main():
                 st.session_state['logged_in'] = False
                 st.session_state['df'] = None
                 
-                conn = sqlite3.connect('db/database.db')
+                conn = sqlite3.connect('dash/db/database.db')
                 cursor = conn.cursor()
                 cursor.execute("""
                 INSERT INTO auth_logs (username, time, type)
