@@ -8,12 +8,12 @@ https://docs.google.com/document/d/1AtBtWD_XQZTQGxew3lpobhV40u84v632ZA4rfMDdJX4/
 
 ## Organização do repositório:
 
-Pasta api :\
-Pasta dash :\  
-Pasta data : Contém os dados mensais brutos enviados pela Ana Health, além de um arquivo csv que contém os dados tratados.\
-Pasta entregas : Contém os pdf's de cada entrega.\  
-Arquivo requirements.txt :\  
-### Pasta notebooks:\
+Pasta api : \
+Pasta dash : \  
+Pasta data : Contém os dados mensais brutos enviados pela Ana Health, além de um arquivo csv que contém os dados tratados. \
+Pasta entregas : Contém os pdf's de cada entrega. \  
+Arquivo requirements.txt : \  
+### Pasta notebooks: \
 
 
 
