@@ -16,7 +16,14 @@ https://docs.google.com/document/d/1AtBtWD_XQZTQGxew3lpobhV40u84v632ZA4rfMDdJX4/
  Contém os pdf's de cada entrega.  
 - #### Arquivo requirements.txt :
  Arquivo que possui as bibliotecas que são requisitadas para o funcionamento dos notebooks.
-- ### Pasta notebooks:  
+- ## Pasta notebooks:
+ #### Classification_model.joblib:
+ > Arquivo com nosso melhor modelo de classificação.
+ #### Regression_model.joblib: 
+ > Arquivo com nosso melhor modelo de regressão.
+ #### Primeiras_analises.ipynb: 
+ > Apresenta nossas primeiras analises exploratórias por todas as features dos primeiros dados disponibilizados.
+
 
 
 
