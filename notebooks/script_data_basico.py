@@ -58,6 +58,14 @@ def retornaTempo(x,y):
     
     return (y-x).days
 
+def getLastTime(x):
+    try:
+        x = str(x)
+        s = x.split(';')
+        return datetime.strptime(s[-1].strip(),'%Y-%m-%d %H:%M:%S')
+    except:
+        return None
+
 
 def lost_reason_lost(x,y):
     if pd.isnull(x) or pd.isnull(y):
@@ -94,10 +102,12 @@ def tratamento(df):
         df[coluna] = df[coluna].apply(devolve_media)
 
 
-    colunas_de_data = ['start_of_service', 'lost_time', 'add_time', 'won_time', 'lost_time.1']
+    colunas_de_data = ['start_of_service', 'add_time', 'won_time', 'lost_time.1']
     colunas_seg = ['stay_in_pipeline_stages_welcome','stay_in_pipeline_stages_first_meeting', 'stay_in_pipeline_stages_whoqol']
     #converter a coluna de segundos para horas
-    
+
+    df['lost_time'] = df['lost_time'].apply(getLastTime)    
+
     for coluna in colunas_seg:
         df[coluna] = df[coluna].apply(converte_para_horas)
 
