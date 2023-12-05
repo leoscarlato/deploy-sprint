@@ -45,9 +45,10 @@ def verifica_usuario(email, senha):
 def login():
     st.title("Login")
 
-    email = st.text_input("Email", key="email_login")
-    password = st.text_input("Password", type="password", key="password_login")
-    submit = st.button("Login")
+    with st.form(key="login_form"):
+        email = st.text_input("Email", key="email_login")
+        password = st.text_input("Password", type="password", key="password_login")
+        submit = st.form_submit_button("Fazer Login")
 
     if submit:
         if verifica_usuario(email, password):

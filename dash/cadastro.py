@@ -53,11 +53,12 @@ def cadastrar_usuario(email, username, password):
 def cadastro():
     st.title("Cadastro")
 
-    email = st.text_input("Email")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    submit = st.button("Cadastro")
-
+    with st.form(key="cadastro_form"):
+        email = st.text_input("Email")
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        submit = st.form_submit_button("Cadastrar")
+        
     if submit:
         cadastrar_usuario(email, username, password)
 
