@@ -3,22 +3,20 @@ import bcrypt
 import mysql.connector
 from mysql.connector import Error
 
-# Configurações do banco de dados MySQL
-db_config = {
-    'database': st.secrets["connections.mysql"]['database'],
-    'user': st.secrets["connections.mysql"]['user'],
-    'password': st.secrets["connections.mysql"]['password'],
-    'host': st.secrets["connections.mysql"]['host']
-}
-
 def buscar_username(email):
     try:
-        conn = mysql.connector.connect(**db_config)
+        conn = mysql.connector.connect(
+            user = st.secrets.connections.username,
+            password = st.secrets.connections.password,
+            host = st.secrets.connections.host,
+            database = st.secrets.connections.database
+        )
         cursor = conn.cursor()
 
         query = "SELECT username FROM users WHERE email = %s"
         cursor.execute(query, (email,))
         username = cursor.fetchone()
+        conn.commit()
 
         return username[0] if username else None
 
@@ -32,12 +30,18 @@ def buscar_username(email):
 
 def verifica_usuario(email, senha):
     try:
-        conn = mysql.connector.connect(**db_config)
+        conn = mysql.connector.connect(
+            user = st.secrets.connections.username,
+            password = st.secrets.connections.password,
+            host = st.secrets.connections.host,
+            database = st.secrets.connections.database
+        )
         cursor = conn.cursor()
 
         query = "SELECT password FROM users WHERE email = %s"
         cursor.execute(query, (email,))
         user = cursor.fetchone()
+        conn.commit()
 
         if user:
             stored_password_hash = user[0]
@@ -71,7 +75,12 @@ def login():
             username = buscar_username(email)
 
             try:
-                conn = mysql.connector.connect(**db_config)
+                conn = mysql.connector.connect(
+                        user = st.secrets.connections.username,
+                        password = st.secrets.connections.password,
+                        host = st.secrets.connections.host,
+                        database = st.secrets.connections.database
+                )
                 cursor = conn.cursor()
 
                 query = """
@@ -95,7 +104,13 @@ def login():
             st.error("Erro ao realizar login!")
 
             try:
-                conn = mysql.connector.connect(**db_config)
+                conn = mysql.connector.connect(
+                    user = st.secrets.connections.username,
+                    password = st.secrets.connections.password,
+                    host = st.secrets.connections.host,
+                    database = st.secrets.connections.database
+                )
+                
                 cursor = conn.cursor()
 
                 query = """

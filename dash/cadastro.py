@@ -20,14 +20,14 @@ def cadastrar_usuario(email, username, password):
         try:
 
             print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-            print(st.secrets["connections.mysql"]['database'])
-
+            print(st.secrets.connections.username)
             conn = mysql.connector.connect(
-                database=st.secrets['database'],
-                user=st.secrets['user'],
-                password=st.secrets['password'],
-                host=st.secrets['host']
+                user = st.secrets.connections.username,
+                password = st.secrets.connections.password,
+                host = st.secrets.connections.host,
+                database = st.secrets.connections.database
             )
+            
             cursor = conn.cursor()
 
             # Inserir o usuário no banco de dados

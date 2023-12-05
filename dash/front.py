@@ -1,20 +1,14 @@
 import streamlit as st
-from paginas.cadastro import cadastro
-from paginas.login import login
+from cadastro import cadastro
+from login import login
 from streamlit_option_menu import option_menu
-from paginas.dashboard import dashboard
+from dashboard import dashboard
 import pandas as pd
 from script_dataframe import tratamento
 import mysql.connector
 from mysql.connector import Error
 
-# Substitua com os detalhes do seu banco de dados MySQL
-db_config = {
-    'database': st.secrets["connections.mysql"]['database'],
-    'user': st.secrets["connections.mysql"]['user'],
-    'password': st.secrets["connections.mysql"]['password'],
-    'host': st.secrets["connections.mysql"]['host']
-}
+
 
 # Inicializando o estado de login
 if 'logged_in' not in st.session_state:
@@ -87,17 +81,23 @@ def main():
                 st.session_state['df'] = None
 
                 try:
-                    conn = mysql.connector.connect(**db_config)
+                    conn = mysql.connector.connect(
+                        user = st.secrets.connections.username,
+                        password = st.secrets.connections.password,
+                        host = st.secrets.connections.host,
+                        database = st.secrets.connections.database
+                    )
                     cursor = conn.cursor()
 
-                    # Insere o log de logout
-                    query = """
-                        INSERT INTO auth_logs (username, time, type)
-                        VALUES (%s, NOW(), 'logout')
-                    """
-                    cursor.execute(query, (st.session_state['user_name'],))
+                    if conn.is_connected():
+                        # Insere o log de logout
+                        query = """
+                            INSERT INTO auth_logs (username, time, type)
+                            VALUES (%s, NOW(), 'logout')
+                        """
+                        cursor.execute(query, (st.session_state['user_name'],))
 
-                    conn.commit()
+                        conn.commit()
 
                 except Error as e:
                     st.error(f"Erro ao conectar ao banco de dados: {e}")
