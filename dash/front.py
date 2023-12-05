@@ -1,3 +1,4 @@
+
 import streamlit as st
 from cadastro import cadastro
 from login import login
@@ -5,10 +6,15 @@ from streamlit_option_menu import option_menu
 from dashboard import dashboard
 import pandas as pd
 from script_dataframe import tratamento
-import mysql.connector
-from mysql.connector import Error
+from pymongo import MongoClient
 
 
+
+
+def connect_to_mongodb():
+    client = MongoClient(st.secrets.mongo.mongo_uri)
+    db = client[st.secrets.mongo.mongo_db]
+    return db
 
 # Inicializando o estado de login
 if 'logged_in' not in st.session_state:
@@ -81,30 +87,17 @@ def main():
                 st.session_state['df'] = None
 
                 try:
-                    conn = mysql.connector.connect(
-                        user = st.secrets.connections.username,
-                        password = st.secrets.connections.password,
-                        host = st.secrets.connections.host,
-                        database = st.secrets.connections.database
-                    )
-                    cursor = conn.cursor()
+                    db = connect_to_mongodb()
+                    # Insere o log de logout
+                    auth_logs = db.auth_logs
+                    auth_logs.insert_one({
+                        "username": st.session_state['user_name'],
+                        "time": pd.to_datetime("now"),
+                        "type": "logout"
+                    })
 
-                    if conn.is_connected():
-                        # Insere o log de logout
-                        query = """
-                            INSERT INTO auth_logs (username, time, type)
-                            VALUES (%s, NOW(), 'logout')
-                        """
-                        cursor.execute(query, (st.session_state['user_name'],))
-
-                        conn.commit()
-
-                except Error as e:
+                except Exception as e:
                     st.error(f"Erro ao conectar ao banco de dados: {e}")
-                finally:
-                    if conn.is_connected():
-                        cursor.close()
-                        conn.close()
 
                 st.experimental_rerun()
 

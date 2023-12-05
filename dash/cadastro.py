@@ -1,8 +1,15 @@
 import streamlit as st
 import bcrypt
-import mysql.connector
-from mysql.connector import Error
+from pymongo import MongoClient
+from datetime import datetime
 
+# Substitua as configurações do MongoDB com as suas próprias
+
+
+def connect_to_mongodb():
+    client = MongoClient(st.secrets.mongo.mongo_uri)
+    db = client[st.secrets.mongo.mongo_db]
+    return db
 
 def cadastrar_usuario(email, username, password):
     # Gerar um hash da senha
@@ -18,42 +25,28 @@ def cadastrar_usuario(email, username, password):
             return False
 
         try:
-
-            print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-            print(st.secrets.connections.username)
-            conn = mysql.connector.connect(
-                user = st.secrets.connections.username,
-                password = st.secrets.connections.password,
-                host = st.secrets.connections.host,
-                database = st.secrets.connections.database
-            )
-            
-            cursor = conn.cursor()
+            db = connect_to_mongodb()
 
             # Inserir o usuário no banco de dados
-            query = """
-                INSERT INTO users (username, password, email)
-                VALUES (%s, %s, %s)
-            """
-            cursor.execute(query, (username, hashed.decode('utf-8'), email))
+            users = db.users
+            users.insert_one({
+                "username": username,
+                "password": hashed.decode('utf-8'),
+                "email": email
+            })
 
             # Criar um log de autenticação
-            query = """
-                INSERT INTO auth_logs (username, time, type)
-                VALUES (%s, NOW(), 'register')
-            """
-            cursor.execute(query, (username,))
+            auth_logs = db.auth_logs
+            auth_logs.insert_one({
+                "username": username,
+                "time": datetime.now(),
+                "type": "register"
+            })
 
-            # Salvar as alterações
-            conn.commit()
-
-        except Error as e:
+        except Exception as e:
             st.error(f"Erro ao conectar ao banco de dados: {e}")
             return False
-        finally:
-            if conn.is_connected():
-                cursor.close()
-                conn.close()
+
         st.success("Cadastro realizado com sucesso!")
         return True
 
@@ -67,3 +60,6 @@ def cadastro():
 
     if submit:
         cadastrar_usuario(email, username, password)
+
+if __name__ == "__main__":
+    cadastro()
