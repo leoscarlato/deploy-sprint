@@ -12,7 +12,7 @@ Pasta api :
 Pasta dash :  
 Pasta data : Contém os dados mensais brutos enviados pela Ana Health, além de um arquivo csv que contém os dados tratados.  
 Pasta entregas : Contém os pdf's de cada entrega.  
-Arquivo requirements.txt :    
+Arquivo requirements.txt : Arquivo que possui as bibliotecas que são requisitadas para o funcionamento dos notebooks.
 ### Pasta notebooks:  
 
 
