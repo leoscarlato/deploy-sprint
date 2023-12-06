@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify
 import joblib
 import pandas as pd
 import pickle
+from ..notebooks.script_data_basico import tratamento_classificacao
 
 def transform_to_category(x,qtd_itens,lista_itens):
    for i in range(qtd_itens):
@@ -23,7 +24,54 @@ colunas_dropadas_regr = ['contract_start_date','contract_end_date','id_continuit
                      'Qde Atendimento Médico','Faltas Atendimento Médico',	'Qde Atendimentos Acolhimento',	'Faltas Acolhimento',	'Qde Psicoterapia',	'Faltas Psicoterapia','Data Última Ligações Outbound',\
                      'Data Última Ligações Inbound','Qde Total de Faturas Pagas após Vencimento','Qde Perfis de Pagamento Inativos', 'Valor Médio da Mensalidade', 'status_prox_mes', 'Qde Total de Faturas','Problemas Abertos', "Tempo até Sair"]
 
-@app.route('/predict', methods=['POST'])
+#rota para classificação
+@app.route('/classification/predict', methods=['POST'])
+def predict_class():
+
+    try:
+        data = request.get_json()
+        features = data.get('features')
+        
+        if not features:
+            return jsonify({'error': 'Dados de entrada não fornecidos'}), 400
+
+        features = pd.DataFrame(features, index=[0])
+
+        print(features.iloc[0])
+
+        print("#"*20)
+
+        clean_data_path = "../data/df_total.csv"
+
+        df = pd.read_csv(clean_data_path)
+        df = df.drop(colunas_dropadas_regr, axis=1)
+        df2 = df.copy()
+
+        features = features[df2.columns]
+
+        df2 = pd.concat([df2, features], ignore_index=False)
+        model_data = df2.copy()
+
+        model_data = tratamento_classificacao(model_data)
+
+        model_data = model_data.iloc[-1]
+        print(model_data)
+
+        modelo_carregado = joblib.load("../notebooks/regression_model.joblib")
+
+        # model_data = model_data.drop('SalePrice')
+        prediction = modelo_carregado.predict(model_data.to_numpy().reshape(1, -1))
+        print(prediction)
+        return jsonify({'prediction': prediction[0]})
+
+
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+#Rota para regressão
+@app.route('/regression/predict', methods=['POST'])
 def predict():
 
     try:
