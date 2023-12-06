@@ -19,9 +19,10 @@ https://docs.google.com/document/d/1AtBtWD_XQZTQGxew3lpobhV40u84v632ZA4rfMDdJX4/
   - **regression_model**: Nosso melhor modelo de regressão.
 
 - ### **/data**: Possui os dados mensais disponibilizados pela empresa parceira divididos em pastas por mês.
-  - **df_total**: Dados mensais concatenados após passarem pelo script "script_data_basico".
+  - **df_total**: Dados mensais concatenados após passarem pelo script "script_data_basico", (gerado no arquivo com caminho scripts/gerar_csv_total).
 
 - ### **/scripts**: Contém os scripts que permitem a replicação do tratamento de dados.
+  - **gerar_csv_total**: Script utilizado para gerar o df_total que é utilizado pela api
   - **script_data_basico**: Script que possui o tratamento que deve ser aplicado nos dados independente do modelo escolhido de ML.
   - **script_data_classificacao**: Script que possui o tratamento que deve ser aplicado nos dados que serão utilizados em modelos de classificação (o script_data_basico deve ser aplicado antes).
   - **script_data_regressao**: Script que possui o tratamento que deve ser aplicado nos dados que serão utilizados em modelos de regressão (o script_data_basico deve ser aplicado antes).
