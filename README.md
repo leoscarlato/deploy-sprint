@@ -6,23 +6,41 @@ https://trello.com/invite/b/R4U47rtK/ATTId11d9405613afc78d801a59690aca25d4B99271
 
 https://docs.google.com/document/d/1AtBtWD_XQZTQGxew3lpobhV40u84v632ZA4rfMDdJX4/edit
 
-# Organização do repositório:
+# Descrição dos Diretórios
 
-- #### Pasta api :  
-- #### Pasta dash :  
-- #### Pasta data :
- Contém os dados mensais brutos enviados pela Ana Health, além de um arquivo csv que contém os dados tratados e um arquivo dentro da pasta Analise, que foi o primeiro csv recebido e utilizado na nossa análise exploratória.  
-- #### Pasta entregas :
- Contém os pdf's de cada entrega.  
-- #### Arquivo requirements.txt :
- Arquivo que possui as bibliotecas que são requisitadas para o funcionamento dos notebooks.
-- ## Pasta notebooks:
- #### Classification_model.joblib:
- > Arquivo com nosso melhor modelo de classificação.
- #### Regression_model.joblib: 
- > Arquivo com nosso melhor modelo de regressão.
- #### Primeiras_analises.ipynb: 
- > Apresenta nossas primeiras analises exploratórias por todas as features dos primeiros dados disponibilizados.
+- ### **/notebooks**: Contém os notebooks da aplicação.
+  - **modelos_regressao**: Notebook onde é feito os testes dos modelos de regressão.
+  - **modelos_classificacao**: Notebook onde é feito os testes dos modelos de classificação.
+  - **primeiras_analises**: Notebook onde foi desenvolvida nossa análise exploratória.
+  - **analises_visuais**: Notebook composto majoritariamente de gráficos que nos auxiliaram no entendimento dos dados.
+ 
+- ### **/modelos**: Contém os modelos da aplicação.
+  - **classification_model**: Nosso melhor modelo de classificação.
+  - **regression_model**: Nosso melhor modelo de regressão.
+
+- ### **/data**: Possui os dados mensais disponibilizados pela empresa parceira divididos em pastas por mês.
+  - **df_total**: Dados mensais concatenados após passarem pelo script "script_data_basico", (gerado no arquivo com caminho scripts/gerar_csv_total).
+
+- ### **/scripts**: Contém os scripts que permitem a replicação do tratamento de dados.
+  - **gerar_csv_total**: Script utilizado para gerar o df_total que é utilizado pela api
+  - **script_data_basico**: Script que possui o tratamento que deve ser aplicado nos dados independente do modelo escolhido de ML.
+  - **script_data_classificacao**: Script que possui o tratamento que deve ser aplicado nos dados que serão utilizados em modelos de classificação (o script_data_basico deve ser aplicado antes).
+  - **script_data_regressao**: Script que possui o tratamento que deve ser aplicado nos dados que serão utilizados em modelos de regressão (o script_data_basico deve ser aplicado antes).
+
+- ### **/entregas**: Pasta com os documentos das entregas intermediárias.
+
+- ### **/api**: Pasta da nossa Api.
+  - **app.py**: Arquivo que possui o código a Api.
+  - **documentacao**: Arquivo que demonstra como utitilizar a Api.
+
+- ### **/dash**:
+
+- ### **/analise-colunas-iguais**: Pasta de analise de colunas
+  - **dataCondensing**: Notebook que demonstra que parte das colunas possuem valores identicos independente do mês de retirada dos dados.
+
+- ### **requirements.txt**: Arquivo com as dependências do nosso projeto
+
+
 
 
 
