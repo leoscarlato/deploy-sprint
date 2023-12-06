@@ -10,7 +10,7 @@ def tratamento_regressao(df):
     df_total = df.copy()
     colunas_dropadas_regr = ['id_person','contract_start_date','contract_end_date','id_continuity_pf','Canal de Preferência','status','lost_time','add_time','id_label','won_time','lost_time.1','lost_reason','lost_reason.1',\
                         'Qde Atendimento Médico','Faltas Atendimento Médico',	'Qde Atendimentos Acolhimento',	'Faltas Acolhimento',	'Qde Psicoterapia',	'Faltas Psicoterapia','Data Última Ligações Outbound',\
-                        'Data Última Ligações Inbound','Qde Total de Faturas Pagas após Vencimento','Qde Perfis de Pagamento Inativos', 'Valor Médio da Mensalidade', 'status_prox_mes', 'Qde Total de Faturas', 'Target','Problemas Abertos']
+                        'Data Última Ligações Inbound','Qde Total de Faturas Pagas após Vencimento','Qde Perfis de Pagamento Inativos', 'Valor Médio da Mensalidade', 'status_prox_mes', 'Qde Total de Faturas','Problemas Abertos']
 
 
     colunas_get_dummies = ['id_gender','id_marrital_status','id_health_plan','notes_count','Método de Pagamento','Qde Total de Faturas Inadimpletes', 'Quem Enviou Última Mensagem']
