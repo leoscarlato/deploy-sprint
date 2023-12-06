@@ -7,7 +7,7 @@ import pickle
 import sys
 sys.path.append('..')
 from scripts.script_data_regressao import tratamento_regressao
-# from ..scripts.script_data_regressao import tratamento_regressao
+from scripts.script_data_classificacao import tratamento_classificacao
 
 def transform_to_category(x,qtd_itens,lista_itens):
    for i in range(qtd_itens):
@@ -55,7 +55,7 @@ def predict():
 
         df2 = pd.concat([df2, features], ignore_index=False)
 
-        df2['Target'] = 0
+        df2['Target'] = 0 # Tirar quando erik fazer o commit do novo script
         df2['id_person'] = 0
         
         model_data = df2.copy()
@@ -114,12 +114,15 @@ def class_predict():
 
         df2 = pd.concat([df2, features], ignore_index=False)
 
-        df2['Target'] = 0
         df2['id_person'] = 0
+        df2['Tempo até Sair'] = 0
         
         model_data = df2.copy()
 
-        model_data = tratamento_regressao(model_data)[0]
+
+        model_data = tratamento_classificacao(model_data)
+        print("aaaaaaddddddddddddddddddddddd")
+
         modelo_carregado = joblib.load("../notebooks/classification_model.joblib")
 
         print('a' * 20)
@@ -127,7 +130,6 @@ def class_predict():
 
         #dropar coluna Tempo até Sair de model_data
 
-        model_data = model_data.drop('Tempo até Sair', axis=1)
 
 
         print('b' * 20)
