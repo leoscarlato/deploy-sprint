@@ -26,9 +26,13 @@ https://docs.google.com/document/d/1AtBtWD_XQZTQGxew3lpobhV40u84v632ZA4rfMDdJX4/
 
 - ### **/entregas**: Pasta com os documentos das entregas intermediárias.
 
-- ### **/api**:
+- ### **/api**: Pasta da nossa Api.
+  - **app.py**: 
 
 - ### **/dash**:
+
+- ### **/analise-colunas-iguais**: Pasta de analise de colunas
+  - **dataCondensing**: Notebook que demonstra que parte das colunas possuem valores identicos independente do mês de retirada dos dados.
 
 - ### **requirements.txt**: Arquivo com as dependências do nosso projeto
 
