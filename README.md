@@ -29,7 +29,8 @@ https://docs.google.com/document/d/1AtBtWD_XQZTQGxew3lpobhV40u84v632ZA4rfMDdJX4/
 - ### **/entregas**: Pasta com os documentos das entregas intermediárias.
 
 - ### **/api**: Pasta da nossa Api.
-  - **app.py**: 
+  - **app.py**: Arquivo que possui o código a Api.
+  - **documentacao**: Arquivo que demonstra como utitilizar a Api.
 
 - ### **/dash**:
 
