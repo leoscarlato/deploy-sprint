@@ -14,8 +14,11 @@ def ultima_mensagem(x,y):
     
     else:
         return "Empresa"
-    
 
+def prox_status(df1, df2):
+    df2_novo = df2[df2['id_person'].isin(df1['id_person'].values)]
+    return pd.merge(df1,df2_novo[['id_person','status']],on='id_person', how='left',suffixes=['','_prox_mes'])
+    
 def lastStatus(x):
     s = x.split(';')
     return s[-1].strip()
@@ -45,7 +48,15 @@ def devolve_media(x):
             print(f"Erro: {e}")
             return None
 
-
+def corrige_status(status,lost_time,final_mes):
+    if lost_time == None:
+        return 'won'
+    
+    if status=='lost':
+        if lost_time>final_mes:
+            return 'won'
+    
+    return status
 
 def tem_ou_nao(x):
     if pd.isnull(x) :
@@ -77,7 +88,7 @@ def lost_reason_lost(x,y):
     s = y.split(';')
     return s[-1].strip()
 
-def tratamento(df):
+def tratamento(df, fim_mes,df2):
 
     df = df[df['id_person'] != 'FALSE']
 
@@ -148,6 +159,7 @@ def tratamento(df):
     
     df_simple['birthdate'] = pd.to_datetime(df_simple['birthdate'], errors='coerce')
     df_simple['birthdate'] = df_simple['birthdate'].apply(lambda x: (datetime.now() - x).days//365)
-    
+    df_simple['status'] = df_simple.apply(lambda row: corrige_status(row['status'], row['lost_time'], fim_mes), axis=1)
+    df_simple = prox_status(df_simple,df2)
 
     return df_simple
