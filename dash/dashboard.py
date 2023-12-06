@@ -6,6 +6,7 @@ import streamlit_shadcn_ui as ui
 from script_dataframe import tratamento
 
 def dashboard():
+    
     st.title("📈 Dashboard")
 
     df = st.session_state.get('df', None)
@@ -52,6 +53,17 @@ def dashboard():
 
     # Criar o gráfico de barras
     fig = px.bar(df_grouped, x=df_grouped['contract_end_date'], y='Contagem', color='status', title="Saintes por mês")
+
+    # Linha de média móvel
+    fig.add_scatter(
+        x=df_grouped['contract_end_date'], 
+        y=df_grouped['Contagem'].rolling(window=3, min_periods=1).mean(), 
+        mode='lines+markers',  # Adiciona linhas e marcadores
+        name='Média Móvel', 
+        line=dict(color='#db003a', width=2, dash='dash'),
+        marker=dict(color='#db003a', size=8),  # Pode ajustar a cor e o tamanho do marcador aqui
+    )
+
 
     # Atualizar layout para ocultar a legenda
     fig.update_layout(showlegend=False)

@@ -45,7 +45,8 @@ def main():
     # Configurar a barra lateral para navegação após o login
     if st.session_state['logged_in']:
         with st.sidebar:
-            st.header(f"Olá, {st.session_state['user_name']}! 👋")
+
+            st.title(f"Olá, {st.session_state['user_name']}! 👋")
 
             arquivo_upload = st.file_uploader("", type="csv")
 
