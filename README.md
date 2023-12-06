@@ -8,13 +8,15 @@ https://docs.google.com/document/d/1AtBtWD_XQZTQGxew3lpobhV40u84v632ZA4rfMDdJX4/
 
 # Descrição dos Diretórios
 
-- ### **/notebooks**: Contém os notebooks e modelos da aplicação.
-  - **classification_model**: Nosso melhor modelo de classificação.
-  - **regression_model**: Nosso melhor modelo de regressão.
+- ### **/notebooks**: Contém os notebooks da aplicação.
   - **modelos_regressao**: Notebook onde é feito os testes dos modelos de regressão.
   - **modelos_classificacao**: Notebook onde é feito os testes dos modelos de classificação.
   - **primeiras_analises**: Notebook onde foi desenvolvida nossa análise exploratória.
   - **analises_visuais**: Notebook composto majoritariamente de gráficos que nos auxiliaram no entendimento dos dados.
+ 
+- ### **/modelos**: Contém os modelos da aplicação.
+  - **classification_model**: Nosso melhor modelo de classificação.
+  - **regression_model**: Nosso melhor modelo de regressão.
 
 - ### **/data**: Possui os dados mensais disponibilizados pela empresa parceira divididos em pastas por mês.
   - **df_total**: Dados mensais concatenados após passarem pelo script "script_data_basico".
@@ -27,7 +29,8 @@ https://docs.google.com/document/d/1AtBtWD_XQZTQGxew3lpobhV40u84v632ZA4rfMDdJX4/
 - ### **/entregas**: Pasta com os documentos das entregas intermediárias.
 
 - ### **/api**: Pasta da nossa Api.
-  - **app.py**: 
+  - **app.py**: Arquivo que possui o código a Api.
+  - **documentacao**: Arquivo que demonstra como utitilizar a Api.
 
 - ### **/dash**:
 
