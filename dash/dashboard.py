@@ -16,11 +16,14 @@ def dashboard():
     
     df = st.session_state.df
 
+    df = df.rename(columns={'birthdate': 'idade'})
+
     st.session_state['data_inicial'] = pd.to_datetime(st.session_state['data_inicial'])
     st.session_state['data_final'] = pd.to_datetime(st.session_state['data_final'])
 
     df_filtrado = df[(df['contract_start_date'] >= st.session_state['data_inicial']) &
                     (df['contract_start_date'] <= st.session_state['data_final'])]
+    
 
     # ===================================== Número de pessoas com contrato ativo =================================================================
 
@@ -46,92 +49,82 @@ def dashboard():
 
     # =============================================================================================================================================
 
-    # ===================================== Gráfico de barras com a quantidade de entrantes e saintes por mês =====================================
+    # ===================================== Gráfico de barras com a quantidade de saintes por mês =====================================
 
-    # Agrupar por mês e status, e contar as ocorrências
     df_grouped = df_filtrado.groupby([df_filtrado['contract_end_date'].dt.strftime('%Y-%m'), 'status']).size().reset_index(name='Contagem')
+    df_grouped = df_grouped[(df_grouped['contract_end_date'] >= st.session_state['data_inicial'].strftime('%Y-%m')) &
+                            (df_grouped['contract_end_date'] <= st.session_state['data_final'].strftime('%Y-%m'))]
 
-    # Criar o gráfico de barras
-    fig = px.bar(df_grouped, x=df_grouped['contract_end_date'], y='Contagem', color='status', title="Saintes por mês")
+    df_grouped['contract_end_date'] = pd.to_datetime(df_grouped['contract_end_date'], format='%Y-%m')
 
-    # Linha de média móvel
-    fig.add_scatter(
-        x=df_grouped['contract_end_date'], 
-        y=df_grouped['Contagem'].rolling(window=3, min_periods=1).mean(), 
-        mode='lines+markers',  # Adiciona linhas e marcadores
-        name='Média Móvel', 
-        line=dict(color='#db003a', width=2, dash='dash'),
-        marker=dict(color='#db003a', size=8),  # Pode ajustar a cor e o tamanho do marcador aqui
-    )
+    df_grouped = df_grouped.sort_values(by='contract_end_date')
 
+    fig = px.bar(df_grouped, x='contract_end_date', y='Contagem', color='status', barmode='group', title='Saintes por Mês')
 
-    # Atualizar layout para ocultar a legenda
-    fig.update_layout(showlegend=False)
+    df_grouped['Média Móvel'] = df_grouped['Contagem'].rolling(3, min_periods=1).mean().round(2)
 
-    # Mostrar o gráfico no Streamlit
+    fig.add_scatter(x=df_grouped['contract_end_date'], y=df_grouped['Média Móvel'], name='Média Móvel', mode='lines+markers', line=dict(color='red', width=2))
+    fig.update_layout(xaxis_title='Data', yaxis_title='Contagem', legend_title='Legenda')
+    fig.for_each_trace(lambda t: t.update(name="N° de saintes" if t.name == "lost" else t.name))
+
     st.plotly_chart(fig, use_container_width=True)
 
     # =============================================================================================================================================
 
-    col1, col2 = st.columns(2)
+    # ===================================== Gráfico de barras com a quantidade de entrantes por mês =====================================
 
+    df_entrantes = df_filtrado[df_filtrado['status'] == 'won']
+
+    # Agrupa por mês e status
+    df_grouped = df_entrantes.groupby([df_entrantes['contract_start_date'].dt.strftime('%Y-%m'), 'status']).size().reset_index(name='Contagem')
+    df_grouped = df_grouped[(df_grouped['contract_start_date'] >= st.session_state['data_inicial'].strftime('%Y-%m')) &
+                            (df_grouped['contract_start_date'] <= st.session_state['data_final'].strftime('%Y-%m'))]
+
+    df_grouped['contract_start_date'] = pd.to_datetime(df_grouped['contract_start_date'], format='%Y-%m')
+
+    df_grouped = df_grouped.sort_values(by='contract_start_date')
+
+    # Crie o gráfico de barras para os entrantes
+    fig = px.bar(df_grouped, x='contract_start_date', y='Contagem', color='status', title='Entrantes por Mês')
+
+    # Adicione a média móvel para os entrantes
+    df_grouped['Média Móvel'] = df_grouped['Contagem'].rolling(3, min_periods=1).mean().round(2)
+    fig.add_scatter(x=df_grouped['contract_start_date'], y=df_grouped['Média Móvel'], name='Média Móvel', mode='lines+markers', line=dict(color='red', width=2))
+
+    fig.update_layout(xaxis_title='Data', yaxis_title='Contagem', legend_title='Legenda')
+    fig.for_each_trace(lambda t: t.update(name="N° de entrantes" if t.name == "won" else t.name))
+
+    # Use st.plotly_chart para exibir o gráfico no Streamlit
+    st.plotly_chart(fig, use_container_width=True)
+
+
+    # =============================================================================================================================================
+
+    col1, col2, col3 = st.columns(3)
     with col1:
+        # Mapeamento dos códigos de gênero para nomes
+        gender_mapping = {63: 'Masculino', 64: 'Feminino', 117: 'Outros'}
 
-        # ===================================== Gráfico de quem enviou a última mensagem =====================================
+        # Aplicando o mapeamento
+        df_filtrado['gender_name'] = df_filtrado['id_gender'].map(gender_mapping)
 
-        status_counts = df_filtrado.groupby(['status', 'Quem Enviou Última Mensagem']).size().unstack()
-        fig = px.bar(status_counts, barmode='group', title="Status do Usuário em relação a quem enviou a última mensagem")
+        # Contando a quantidade de clientes por gênero mapeado
+        gender_counts = df_filtrado['gender_name'].value_counts()
+
+        # Criando o gráfico de pizza
+        fig = px.pie(gender_counts, values=gender_counts.values, names=gender_counts.index, title='Distribuição de Clientes por Gênero', hole=0.4)
+
+        # Exibindo o gráfico no Streamlit
         st.plotly_chart(fig, use_container_width=True)
+
+
 
         # ====================================================================================================================
 
-    with col2:
-
-        # ===================================== Gráfico das faixas etárias dos clientes que saíram =====================================
-
-        df_sairam = df_filtrado[df_filtrado['status'] == 'lost']
-
-        bins = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
-        labels = ['0-10', '11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '71-80', '>80']
-        df_sairam['Faixa Etária'] = pd.cut(df_sairam['birthdate'], bins=bins, labels=labels, right=False)
-
-        age_counts = df_sairam['Faixa Etária'].value_counts().reset_index()
-        age_counts.columns = ['Faixa Etária', 'Quantidade']
-
-        fig = px.pie(age_counts, names='Faixa Etária', values='Quantidade', title='Distribuição de Faixa Etária das Pessoas que Sairam', hole=0.4)
-
-        st.plotly_chart(fig, use_container_width=True)
-
-        # ================================================================================================================================
-
-    # ====================================== Gráfico de linha com a quantidade de entrantes e saíntes por mês ============================
-
-    df_filtrado['contract_start_date'] = pd.to_datetime(df_filtrado['contract_start_date'])
-    df_filtrado['contract_end_date'] = pd.to_datetime(df_filtrado['contract_end_date'])
-
-    entrantes = df_filtrado['contract_start_date'].value_counts().sort_index()
-    saintes = df_filtrado['contract_end_date'].value_counts().sort_index()
-
-    timeline_df = pd.DataFrame({'Entrantes': entrantes, 'Saintes': saintes})
-
-    idx = pd.date_range(timeline_df.index.min(), timeline_df.index.max())
-    timeline_df = timeline_df.reindex(idx, fill_value=0)
-
-    timeline_df['Total Entrantes'] = timeline_df['Entrantes'].cumsum()
-    timeline_df['Total Saintes'] = timeline_df['Saintes'].cumsum()
-
-    timeline_df = timeline_df.reset_index().rename(columns={'index': 'Data'})
-
-    fig = px.line(timeline_df, x='Data', y=['Total Entrantes', 'Total Saintes'], title='Número Total de Entrantes e Saintes ao Longo do Tempo')
-    st.plotly_chart(fig, use_container_width=True)
-
-    # ======================================================================================================================================
-
     # ====================================== Gráfico dos planos de saúde mais comuns =======================================================
 
-    col1, col2 = st.columns(2)
 
-    with col1:
+    with col2:
     
         df_filtrado['id_health_plan'] = df_filtrado['id_health_plan'].fillna('Não Informado')
         df_filtrado['id_health_plan'] = df_filtrado['id_health_plan'].replace(412, 'SUS')
@@ -152,7 +145,7 @@ def dashboard():
 
     # ================================================ Tipos de Atendimento ===============================================================
     
-    with col2:
+    with col3:
     
         labels = ["Médico", "Acolhimento", "Psicoterapia"]
         values = [df_filtrado["Qde Atendimento Médico"].sum(), df_filtrado["Qde Atendimentos Acolhimento"].sum(), df_filtrado["Qde Psicoterapia"].sum()]
@@ -162,6 +155,35 @@ def dashboard():
 
     # ======================================================================================================================================
 
-    # ================================================ Ranking top problemas abertos =======================================================
+    # ===================================== Gráfico das faixas etárias de todos os =====================================
 
-    
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        # Filtrando os clientes que estão ativos
+        df_ativos = df_filtrado[df_filtrado['status'] == 'won']
+
+        # Criando o gráfico de barras
+        fig = px.histogram(df_ativos, x='idade', title='Faixa Etária dos Clientes Ativos', nbins=100)
+
+        fig.update_layout(xaxis_title='Idade', yaxis_title='Contagem', legend_title='Legenda')
+
+        # Exibindo o gráfico no Streamlit
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+
+        # Filtrando os clientes que estão cancelados
+        df_cancelados = df_filtrado[df_filtrado['status'] == 'lost']
+
+        # Criando o gráfico de barras
+        fig = px.histogram(df_cancelados, x='idade', title='Faixa Etária dos Clientes Que Cancelaram', nbins=100)
+
+        fig.update_layout(xaxis_title='Idade', yaxis_title='Contagem', legend_title='Legenda')
+
+        # Exibindo o gráfico no Streamlit
+        st.plotly_chart(fig, use_container_width=True)
+
+
+    # ===============================================================================================================================

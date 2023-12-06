@@ -66,20 +66,32 @@ def main():
             if st.session_state['df'] is not None:
                 try:
                     st.markdown("---")
+                    # Definindo os valores padrão para os inputs de data
+                    default_data_inicial = st.session_state.df['contract_start_date'].min()
+                    default_data_final = st.session_state.df['contract_end_date'].max()
+
                     st.session_state['data_inicial'] = st.date_input(
                         "Data inicial", 
-                        value=st.session_state.df['contract_start_date'].min(), 
-                        min_value=st.session_state.df['contract_start_date'].min(), 
-                        max_value=st.session_state.df['contract_start_date'].max()
+                        value=st.session_state.get('data_inicial', default_data_inicial), 
+                        min_value=default_data_inicial, 
+                        max_value=default_data_final
                     )
                     st.session_state['data_final'] = st.date_input(
                         "Data final", 
-                        value=st.session_state.df['contract_end_date'].max(), 
-                        min_value=st.session_state.df['contract_end_date'].min(), 
-                        max_value=st.session_state.df['contract_end_date'].max()
+                        value=st.session_state.get('data_final', default_data_final), 
+                        min_value=default_data_inicial, 
+                        max_value=default_data_final
                     )
+
+                    # Botão para resetar os filtros de data
+                    if st.button("Resetar filtros de data"):
+                        st.session_state['data_inicial'] = default_data_inicial
+                        st.session_state['data_final'] = default_data_final
+                        st.rerun()
+
                 except Exception as e:
                     st.error(f"Erro ao carregar filtros de data: {e}")
+
             st.markdown("---")
 
              # Botão de logout
