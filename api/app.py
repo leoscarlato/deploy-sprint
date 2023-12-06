@@ -2,58 +2,51 @@ import json
 from flask import Flask, request, jsonify
 import joblib
 import pandas as pd
+from flask_httpauth import HTTPBasicAuth
+from flask_bcrypt import Bcrypt
+from pymongo import MongoClient
 import pickle
+import os
+from dotenv import load_dotenv
+
 # from ..scripts.script_data_basico import tratamento_classificacao
 import sys
 sys.path.append('..')
 from scripts.script_data_regressao import tratamento_regressao
 from scripts.script_data_classificacao import tratamento_classificacao
 
-def transform_to_category(x,qtd_itens,lista_itens):
-   for i in range(qtd_itens):
-      if x == lista_itens[i]:
-         return str(x)
-   return 'Outros'
 
-def retornaTempo(x,y):
-    if y==None:
-        return None
+load_dotenv()
+
+# cliente = MongoClient(os.getenv('MONGO_URI'))
+# db = cliente[os.getenv('MONGO_DB')]
+
+def connect_mongo_db():
+    cliente = MongoClient(os.getenv('MONGO_URI'))
+    db = cliente[os.getenv('MONGO_DB')]
     
-    return (y-x).days
+    return db
+
 
 app = Flask(__name__)
 
-
-colunas_dropadas_regr = ['contract_start_date','contract_end_date','id_continuity_pf','Canal de Preferência','status','lost_time','add_time','id_label','won_time','lost_time.1','lost_reason','lost_reason.1',\
-                     'Qde Atendimento Médico','Faltas Atendimento Médico',	'Qde Atendimentos Acolhimento',	'Faltas Acolhimento',	'Qde Psicoterapia',	'Faltas Psicoterapia','Data Última Ligações Outbound',\
-                     'Data Última Ligações Inbound','Qde Total de Faturas Pagas após Vencimento','Qde Perfis de Pagamento Inativos', 'Valor Médio da Mensalidade', 'status_prox_mes', 'Qde Total de Faturas','Problemas Abertos', "Tempo até Sair"]
+auth = HTTPBasicAuth()
+bcrypt = Bcrypt(app)
 
 
-
-
-colunas_df_total   = ['idade', 'done_activities_count', 'start_of_service',
-       'Qde Todos Atendimentos', 'Faltas Todos Atendimento', 'Físico',
-       'Psicológico', 'Social', 'Ambiental', 'Mensagens Inbound',
-       'Mensagens Outbound', 'Ligações Inbound', 'Ligações Outbound',
-       'Qde Total de Tentativas de Cobrança', 'Valor Total Inadimplência',
-       'Tem Problema em Aberto', 'Tempo Última Mensagem Inbound',
-       'Tempo Última Mensagem Outbound', 'Target', 'id_gender_63.0',
-       'id_gender_64.0', 'id_gender_Outros', 'id_marrital_status_80.0',
-       'id_marrital_status_82.0', 'id_marrital_status_83.0',
-       'id_health_plan_412.0', 'id_health_plan_415.0', 'id_health_plan_418.0',
-       'id_health_plan_435.0', 'id_health_plan_Outros', 'notes_count_0',
-       'notes_count_1', 'notes_count_2', 'notes_count_3', 'notes_count_4',
-       'notes_count_5', 'notes_count_6',
-       'Método de Pagamento_Cartão de crédito', 'Método de Pagamento_Dinheiro',
-       'Método de Pagamento_Outros', 'Qde Total de Faturas Inadimpletes_False',
-       'Qde Total de Faturas Inadimpletes_True',
-       'Quem Enviou Última Mensagem_Cliente',
-       'Quem Enviou Última Mensagem_Empresa']
-
-
+@auth.verify_password
+def verify_password(username, password):
+    db = connect_mongo_db()
+    user = db.users.find_one({'email': username})
+    if user and bcrypt.check_password_hash(user['password'], password):
+        app.logger.info("Password verification successful.")
+        return username
+    app.logger.info("Password verification failed.")
 
 #Rota para regressão
+
 @app.route('/regression/predict', methods=['POST'])
+@auth.login_required
 def predict():
 
     try:
@@ -65,9 +58,7 @@ def predict():
 
         features = pd.DataFrame(features, index=[0])
 
-        print(features.iloc[0])
 
-        print("#"*20)
 
         clean_data_path = "../data/df_total.csv"
 
@@ -87,24 +78,19 @@ def predict():
         model_data = tratamento_regressao(model_data)[0]
         modelo_carregado = joblib.load("../notebooks/regression_model.joblib")
 
-        print('a' * 20)
-        print(model_data)
 
         #dropar coluna Tempo até Sair de model_data
 
         model_data = model_data.drop('Tempo até Sair', axis=1)
 
 
-        print('b' * 20)
 
 
         model_data = model_data.iloc[-1]
         
-        print(model_data)
 
         # model_data = model_data.drop('SalePrice')
         prediction = modelo_carregado.predict(model_data.to_numpy().reshape(1, -1))
-        print(prediction)
         return jsonify({'prediction': prediction[0]})
 
     except Exception as e:
@@ -113,6 +99,7 @@ def predict():
 
 #Rota para calssificação 
 @app.route('/classification/predict', methods=['POST'])
+@auth.login_required
 def class_predict():
 
     try:
@@ -124,9 +111,6 @@ def class_predict():
 
         features = pd.DataFrame(features, index=[0])
 
-        print(features.iloc[0])
-
-        print("#"*20)
 
         clean_data_path = "../data/df_total.csv"
 
@@ -145,16 +129,12 @@ def class_predict():
 
 
         model_data = tratamento_classificacao(model_data)
-        print("aaaaaaddddddddddddddddddddddd")
 
         modelo_carregado = joblib.load("../modelos/classification_model.joblib")
 
-        print('a' * 20)
-        print(model_data)
 
         #dropar coluna Tempo até Sair de model_data
 
-        print('b' * 20)
 
 
         model_data = model_data.drop('Target', axis=1)
@@ -166,7 +146,6 @@ def class_predict():
         # print(colunas_p.T.columns == colunas_df_total)
 
         prediction = modelo_carregado.predict(model_data.to_numpy().reshape(1, -1))
-        print(prediction)
         return jsonify({'prediction': str(prediction[0])})
 
     except Exception as e:
